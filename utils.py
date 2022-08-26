@@ -101,4 +101,42 @@ def get_by_genre(genre):
         return None
     return result_list
 
-print(get_by_genre('comedies'))
+
+def get_by_two(actor_one, actor_two):
+    actors = '%' + actor_one + '%' + actor_two + '%'
+    conn = sqlite3.connect("netflix.db")
+    curs = conn.cursor()
+    sqlite_query = ("""
+                SELECT title, "cast"
+                FROM netflix
+                WHERE "cast" LIKE?
+                """)
+    result = curs.execute(sqlite_query, (actors,))
+    result = result.fetchall()
+    if len(result) < 1:
+        return None
+    return result
+
+
+def get_by_type(type_, genre, year):
+    result = load_database()
+    movie_list = []
+    try:
+        for i in result.fetchall():
+            movie_dict = {}
+            i = list(i)
+            if type_.lower() == i[1].lower():
+                if year == i[7]:
+                    list_genre = i[11].split(", ")
+                    if genre in list_genre:
+                        movie_dict = {'title': i[2], 'release_date': i[7], 'genre': i[11]}
+            else:
+                pass
+            if len(movie_dict) > 0:
+                movie_list.append(movie_dict)
+        return movie_list
+    except ValueError:
+        raise None
+
+print(get_by_two('Rose McIver', 'Ben Lamb'))
+print(get_by_type('Movie', 'Comedies', 2017))
